@@ -48,3 +48,47 @@ class TaskCardWidget extends StatelessWidget {
     );
   }
 }
+
+class TodoWidget extends StatelessWidget {
+  final String text;
+  final bool isDone;
+
+  const TodoWidget({Key? key, required this.text, required this.isDone})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      child: Row(children: [
+        Container(
+          width: 20,
+          height: 20,
+          margin: const EdgeInsets.only(right: 12),
+          decoration: BoxDecoration(
+              color: isDone ? const Color(0xFF7349FE) : Colors.transparent,
+              borderRadius: BorderRadius.circular(6),
+              border: isDone
+                  ? null
+                  : Border.all(color: const Color(0xFF86829D), width: 1.5)),
+          child: const Image(image: AssetImage("assets/images/check_icon.png")),
+        ),
+        Text(
+          text ?? '할일이 없습니까?',
+          style: TextStyle(
+              color: isDone ? const Color(0xFF211551) : const Color(0xFF86829D),
+              fontSize: 16,
+              fontWeight: isDone ? FontWeight.bold : FontWeight.w500),
+        )
+      ]),
+    );
+  }
+}
+
+class NoGlowBehaviour extends ScrollBehavior {
+  @override
+  Widget buildViewportChrome(
+      BuildContext context, Widget child, AxisDirection axisDirection) {
+    return child;
+  }
+}

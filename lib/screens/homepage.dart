@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_todo/database_helper.dart';
 import 'package:flutter_todo/screens/taskpage.dart';
 import 'package:flutter_todo/widgets.dart';
 
@@ -10,6 +11,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final DatabaseHelper _dbHelper = DatabaseHelper();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,17 +38,24 @@ class _HomePageState extends State<HomePage> {
                   // 영역을 설정해주지 않고 ListView 만을 이용하면 렌더링이 되지않기 때문에 Expanded 위젯이 있어야한다.
                   // TaskCardWidget 위젯 클래스를 호출할 때 생성자를 호출하여 title 변수에 값을 할당할 수 있도록한다.
                   Expanded(
-                    child: ListView(children: const [
-                      TaskCardWidget(
-                          title: '오늘 할 일을 작성해보세요.',
-                          desc:
-                              "안녕하세요 사용자님! 투두앱을 사용해주셔서 감사합니다. 이것은 할일의 세부사항을 적는 곳입니다."),
-                      TaskCardWidget(title: '1', desc: "2"),
-                      TaskCardWidget(title: '1', desc: "2"),
-                      TaskCardWidget(title: '1', desc: "2"),
-                      TaskCardWidget(title: '1', desc: "2"),
-                      TaskCardWidget(title: '1', desc: "2"),
-                    ]),
+                    child: FutureBuilder(
+                      initialData: [],
+                      //future 인자값은 FutureBuilder 가 현재 연결할 비동기 함수
+                      future: _dbHelper.getTask(),
+                      // snapshot 인자값은 특정 시점에 데이터를 복사해서 보관한다.
+                      builder: (context, AsyncSnapshot snapshot) {
+                        return ScrollConfiguration(
+                          behavior: NoGlowBehaviour(),
+                          child: ListView.builder(
+                              itemCount: snapshot.data.length,
+                              itemBuilder: (context, index) {
+                                return TaskCardWidget(
+                                    title: snapshot.data[index].title,
+                                    desc: 'desc');
+                              }),
+                        );
+                      },
+                    ),
                   )
                 ],
               ),
@@ -55,15 +65,20 @@ class _HomePageState extends State<HomePage> {
                 child: GestureDetector(
                   onTap: () {
                     Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const TaskPage()));
+                      context,
+                      MaterialPageRoute(builder: (context) => const TaskPage()),
+                    ).then((value) {
+                      setState() {}
+                    });
                   },
                   child: Container(
                       width: 60,
                       height: 60,
                       decoration: BoxDecoration(
-                          color: const Color(0xFF7349FE),
+                          gradient: const LinearGradient(
+                              colors: [Color(0xFF7349FE), Color(0xFF643FDB)],
+                              begin: Alignment(0, -1),
+                              end: Alignment(0, 1)),
                           borderRadius: BorderRadius.circular(20)),
                       child: const Image(
                           image: AssetImage("assets/images/add_icon.png"))),
